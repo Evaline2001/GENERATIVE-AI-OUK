@@ -1,0 +1,43 @@
+import py_module.git_tools;
+
+walker code_genius {
+    can run(repo_url) {
+        std.out("🚀 Starting Codebase Genius for: " + repo_url);
+        spawn repo_mapper {repo_url = repo_url} by map_repo;
+        spawn code_analyzer {repo_url = repo_url} by analyze;
+        spawn doc_genie by generate;
+        std.out("✅ Documentation process completed!");
+    }
+}
+
+walker repo_mapper {
+    has repo_url;
+    has file_tree;
+    can map_repo {
+        std.out("📂 Cloning and mapping repo...");
+        py_module.git_tools.clone_repo(repo_url,"temp_repo");
+        file_tree=py_module.git_tools.generate_tree("temp_repo");
+        std.out("🗂️ File tree generated with "+str(len(file_tree))+" directories");
+    }
+}
+
+walker code_analyzer {
+    has repo_url;
+    has analysis_summary;
+    can analyze {
+        std.out("🧠 Analyzing code structure...");
+        analysis_summary=py_module.git_tools.simple_analyze("temp_repo");
+        std.out("📊 "+analysis_summary);
+    }
+}
+
+walker doc_genie {
+    has markdown_output;
+    can generate {
+        std.out("📝 Generating markdown documentation...");
+        file_tree=py_module.git_tools.generate_tree("temp_repo");
+        summary=py_module.git_tools.simple_analyze("temp_repo");
+        markdown_output=py_module.git_tools.build_docs(file_tree,summary);
+        std.out("📄 Documentation saved to docs.md");
+    }
+}
